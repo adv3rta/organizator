@@ -1,0 +1,45 @@
+2026-03-21 00:49:56,394 | INFO | app.main | Application started
+time=2026-03-23T01:25:31 level=INFO logger=app.main message="Application started"
+time=2026-03-23T01:25:58 level=INFO logger=app.ui.main_window message="Settings saved."
+time=2026-03-23T01:26:02 level=INFO logger=app.ui.main_window message="Settings saved."
+time=2026-03-23T01:26:50 level=INFO logger=app.services.metadata_service message="Created tagged MP3 copy 'C:\Users\user\Desktop\ImageGifStudio\exports\ильес\ильес_edited.mp3' from 'C:\Users\user\Desktop\ADVERTA\ильес.mp3'"
+time=2026-03-23T01:26:50 level=INFO logger=app.ui.main_window message="Completed. Success: 1, failed: 0."
+time=2026-03-23T01:28:01 level=INFO logger=app.services.watermark_service message="Applied watermark to 'C:\Users\user\Desktop\ADVERTA\SHAR.png'"
+time=2026-03-23T01:28:01 level=INFO logger=app.ui.main_window message="Completed. Success: 1, failed: 0."
+time=2026-03-23T02:06:20 level=INFO logger=app.main message="Application started"
+time=2026-03-23T02:35:40 level=INFO logger=app.main message="Application started"
+time=2026-03-23T18:19:39 level=INFO logger=app.main message="Application started"
+time=2026-03-23T18:24:30 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\999999.png' into 4 squares."
+time=2026-03-23T18:24:30 level=INFO logger=app.ui.main_window message="Completed. Success: 1, failed: 0."
+time=2026-03-23T18:25:36 level=INFO logger=app.ui.main_window message="Settings saved."
+time=2026-03-23T18:38:41 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\DOWNPART.png' into 15 squares."
+time=2026-03-23T18:38:41 level=INFO logger=app.ui.main_window message="Completed. Success: 1, failed: 0."
+time=2026-03-23T19:54:32 level=INFO logger=app.ui.main_window message="Settings saved."
+time=2026-03-23T20:07:46 level=INFO logger=app.main message="Application started"
+time=2026-03-23T20:08:54 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\zalupa.jpg' into 1 squares."
+time=2026-03-23T21:08:11 level=INFO logger=app.main message="Application started"
+time=2026-03-23T23:37:08 level=INFO logger=app.main message="Application started"
+time=2026-03-24T13:49:16 level=INFO logger=app.main message="Application started"
+time=2026-03-25T00:26:47 level=INFO logger=app.main message="Application started"
+time=2026-03-25T01:18:37 level=INFO logger=app.main message="Application started"
+time=2026-03-30T23:42:41 level=INFO logger=app.main message="Application started"
+time=2026-03-30T23:59:53 level=INFO logger=app.main message="Application started"
+time=2026-03-31T14:45:36 level=INFO logger=app.main message="Application started"
+time=2026-03-31T22:45:52 level=INFO logger=app.main message="Application started"
+time=2026-03-31T22:55:16 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\5555555.png' into 9 squares."
+time=2026-03-31T22:55:20 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\5555555.png' into 9 squares."
+time=2026-03-31T22:55:45 level=INFO logger=app.services.image_service message="Sliced image 'C:\Users\user\Desktop\ADVERTA\5555555.png' into 9 squares."
+time=2026-03-31T23:09:08 level=INFO logger=app.main message="Application started"
+{"timestamp": "2026-03-31T20:49:30.874387+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
+{"timestamp": "2026-03-31T20:50:52.960960+00:00", "level": "INFO", "logger": "app.services.password_storage_service", "message": "Password entries saved", "module": "password_storage_service", "function": "save_entries", "line": 38, "error_code": "PWD-002", "context": {"count": 1, "path": "passwords.json"}}
+{"timestamp": "2026-03-31T20:50:52.971912+00:00", "level": "INFO", "logger": "app.ui.password_manager", "message": "Password entry saved", "module": "password_manager", "function": "_save_entry", "line": 275, "error_code": "UI-001", "context": {"entry_id": "f7e0226a0fef411c94ab6c54997d5aae"}}
+{"timestamp": "2026-03-31T20:51:28.615308+00:00", "level": "INFO", "logger": "app.services.password_generator_service", "message": "Password generated", "module": "password_generator_service", "function": "generate", "line": 49, "error_code": "PWD-004", "context": {"length": 64, "pool_count": 4}}
+{"timestamp": "2026-03-31T20:51:40.512779+00:00", "level": "INFO", "logger": "app.services.clipboard_service", "message": "Clipboard updated", "module": "clipboard_service", "function": "copy_text", "line": 17, "error_code": "CLP-001", "context": {"label": "password", "length": 10}}
+{"timestamp": "2026-03-31T20:51:42.544069+00:00", "level": "INFO", "logger": "app.services.clipboard_service", "message": "Clipboard updated", "module": "clipboard_service", "function": "copy_text", "line": 17, "error_code": "CLP-001", "context": {"label": "password", "length": 10}}
+{"timestamp": "2026-03-31T20:51:52.033035+00:00", "level": "INFO", "logger": "app.services.settings_service", "message": "Settings saved", "module": "settings_service", "function": "save", "line": 43, "error_code": "CFG-002", "context": {"path": "settings.json"}}
+{"timestamp": "2026-03-31T20:58:56.073885+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
+{"timestamp": "2026-03-31T20:59:48.774874+00:00", "level": "INFO", "logger": "app.services.image_service", "message": "Sliced image 'C:\\Users\\user\\Desktop\\ADVERTA\\9999.png' into 16 squares.", "module": "image_service", "function": "slice_to_squares", "line": 42}
+{"timestamp": "2026-03-31T21:00:55.477405+00:00", "level": "INFO", "logger": "app.services.watermark_service", "message": "Applied watermark to 'C:\\Users\\user\\Desktop\\ADVERTA\\999999.png'", "module": "watermark_service", "function": "apply_watermark", "line": 51}
+{"timestamp": "2026-03-31T21:03:52.008646+00:00", "level": "INFO", "logger": "app.services.metadata_service", "message": "Created tagged MP3 copy 'exports\\ильес\\ильес_edited.mp3' from 'C:\\Users\\user\\Desktop\\ADVERTA\\ильес.mp3'", "module": "metadata_service", "function": "create_tagged_copy", "line": 57}
+{"timestamp": "2026-03-31T21:04:33.232601+00:00", "level": "INFO", "logger": "app.services.settings_service", "message": "Settings saved", "module": "settings_service", "function": "save", "line": 43, "error_code": "CFG-002", "context": {"path": "settings.json"}}
+{"timestamp": "2026-03-31T21:09:37.330429+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}

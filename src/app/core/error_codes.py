@@ -1,0 +1,13 @@
+from __future__ import annotations
+
+
+class ErrorCodes:
+    SETTINGS_LOAD = "CFG-001"
+    SETTINGS_SAVE = "CFG-002"
+    PASSWORD_LOAD = "PWD-001"
+    PASSWORD_SAVE = "PWD-002"
+    PASSWORD_VALIDATION = "PWD-003"
+    PASSWORD_GENERATION = "PWD-004"
+    CLIPBOARD_COPY = "CLP-001"
+    UI_ACTION = "UI-001"
+    BACKGROUND_TASK = "BG-001"
