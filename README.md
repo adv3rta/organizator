@@ -11,7 +11,7 @@ Offline Windows desktop app for image splitting, watermarking, MP3 metadata edit
 - Encode and decode Morse, Binary, Base64, and Caesar cipher text.
 - Show in-app toast notifications instead of blocking Windows message boxes.
 - Drag and drop files or folders with visual feedback.
-- Configure export folder, theme, sounds, and notifications.
+- Configure export folder, sounds, notifications, and language.
 - Structured logging, error handling, and unit tests for core processing services.
 
 ## Tech stack

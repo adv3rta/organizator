@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import logging
 from pathlib import Path
@@ -23,18 +23,14 @@ from PySide6.QtWidgets import (
 
 from app.core.exceptions import AppError
 from app.models import AppSettings, MetadataUpdate, WatermarkPreset, WatermarkRequest
-from app.services.clipboard_service import ClipboardService
 from app.services.coder_service import CoderService
 from app.services.image_service import ImageService
 from app.services.metadata_service import MetadataService
 from app.services.notification_service import notification_bus, show_notification
-from app.services.password_generator_service import PasswordGeneratorService
-from app.services.password_storage_service import PasswordStorageService
 from app.services.preset_service import PresetService
 from app.services.settings_service import SettingsService
 from app.services.watermark_service import WatermarkService
-from app.ui.password_manager import PasswordManagerWidget
-from app.ui.theme import build_stylesheet
+from app.ui.stylesheet import build_stylesheet
 from app.ui.widgets import DesktopIconButton, FileQueueWidget, LabeledToggle, RetroButton, RetroInput, RetroTextEdit, RetroWindow, SliderWithInput, TaskRunner, ToastManager
 
 logger = logging.getLogger(__name__)
@@ -45,10 +41,8 @@ TRANSLATIONS = {
         "start": "Start",
         "file": "File",
         "view": "View",
-        "special": "Special",
         "telegram": "Telegram",
         "settings": "Settings",
-        "password_manager": "Password Manager",
         "made_by": "made by adv3rta",
         "view_assets": "View assets",
         "method": "Method",
@@ -87,109 +81,51 @@ TRANSLATIONS = {
         "image_splitter": "Image Splitter",
         "watermark": "Watermark",
         "mp3_metadata": "MP3 Metadata",
-        "password.search": "Search",
-        "password.service": "Service",
-        "password.username": "Username",
-        "password.password": "Password",
-        "password.url": "URL",
-        "password.notes": "Notes",
-        "password.actions": "Actions",
-        "password.new": "New",
-        "password.generate": "Generate password",
-        "password.save": "Save entry",
-        "password.delete": "Delete entry",
-        "password.copy_user": "Copy user",
-        "password.copy_pass": "Copy pass",
-        "password.lowercase": "Lowercase",
-        "password.uppercase": "Uppercase",
-        "password.digits": "Digits",
-        "password.symbols": "Symbols",
-        "password.exclude_ambiguous": "Exclude ambiguous",
-        "password.generate_now": "Generate",
-        "password.apply": "Apply",
-        "password.copy": "Copy",
-        "password.length": "Length",
-        "password.generated": "Generated",
-        "password.saved_notice": "Password entry saved.",
-        "password.deleted_notice": "Password entry deleted.",
-        "password.copied_notice": "Copied to clipboard.",
-        "password.error_title": "Password manager error",
-        "password.edit": "Edit",
     },
     "ru": {
-        "start": "Приступить",
-        "file": "Файл",
-        "view": "Вид",
-        "special": "Специальное",
-        "telegram": "Телеграм",
-        "settings": "Настройки",
-        "password_manager": "Менеджер паролей",
+        "start": "РџСЂРёСЃС‚СѓРїРёС‚СЊ",
+        "file": "Р¤Р°Р№Р»",
+        "view": "Р’РёРґ",
+        "telegram": "РўРµР»РµРіСЂР°Рј",
+        "settings": "РќР°СЃС‚СЂРѕР№РєРё",
         "made_by": "made by adv3rta",
-        "view_assets": "посмотреть ассеты",
-        "method": "Метод",
-        "input": "Ввод",
-        "output": "Вывод",
-        "shift": "Сдвиг",
-        "add_images": "Добавить изображения",
-        "add_files": "Добавить файлы",
-        "add_mp3": "Добавить MP3",
-        "delete_selected": "Удалить выбранное",
-        "slice_images": "Разрезать изображения",
-        "apply_watermark": "Наложить водяной знак",
-        "select_png": "Выбрать PNG",
-        "png_not_selected": "PNG не выбран",
-        "cover_not_selected": "Обложка не выбрана",
-        "select_cover": "Выбрать обложку",
-        "apply_preset": "Применить пресет",
-        "save_preset": "Сохранить пресет",
-        "delete_preset": "Удалить пресет",
-        "text": "Текст",
+        "view_assets": "РїРѕСЃРјРѕС‚СЂРµС‚СЊ Р°СЃСЃРµС‚С‹",
+        "method": "РњРµС‚РѕРґ",
+        "input": "Р’РІРѕРґ",
+        "output": "Р’С‹РІРѕРґ",
+        "shift": "РЎРґРІРёРі",
+        "add_images": "Р”РѕР±Р°РІРёС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ",
+        "add_files": "Р”РѕР±Р°РІРёС‚СЊ С„Р°Р№Р»С‹",
+        "add_mp3": "Р”РѕР±Р°РІРёС‚СЊ MP3",
+        "delete_selected": "РЈРґР°Р»РёС‚СЊ РІС‹Р±СЂР°РЅРЅРѕРµ",
+        "slice_images": "Р Р°Р·СЂРµР·Р°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ",
+        "apply_watermark": "РќР°Р»РѕР¶РёС‚СЊ РІРѕРґСЏРЅРѕР№ Р·РЅР°Рє",
+        "select_png": "Р’С‹Р±СЂР°С‚СЊ PNG",
+        "png_not_selected": "PNG РЅРµ РІС‹Р±СЂР°РЅ",
+        "cover_not_selected": "РћР±Р»РѕР¶РєР° РЅРµ РІС‹Р±СЂР°РЅР°",
+        "select_cover": "Р’С‹Р±СЂР°С‚СЊ РѕР±Р»РѕР¶РєСѓ",
+        "apply_preset": "РџСЂРёРјРµРЅРёС‚СЊ РїСЂРµСЃРµС‚",
+        "save_preset": "РЎРѕС…СЂР°РЅРёС‚СЊ РїСЂРµСЃРµС‚",
+        "delete_preset": "РЈРґР°Р»РёС‚СЊ РїСЂРµСЃРµС‚",
+        "text": "РўРµРєСЃС‚",
         "png": "PNG",
-        "preset": "Пресет",
-        "title": "Название",
-        "author": "Автор",
-        "tags": "Теги",
-        "cover": "Обложка",
-        "export_tagged": "Экспорт копий",
-        "sound": "Звук",
-        "notifications": "Уведомления",
-        "toast_corner": "Угол уведомлений",
-        "export_folder": "Папка экспорта",
-        "choose_export_folder": "Выбрать папку экспорта",
-        "save_settings": "Сохранить настройки",
-        "language": "Язык",
-        "coder": "кодер",
-        "image_splitter": "Разделитель изображений",
-        "watermark": "Водяной знак",
-        "mp3_metadata": "MP3 метаданные",
-        "password.search": "Поиск",
-        "password.service": "Сервис",
-        "password.username": "Логин",
-        "password.password": "Пароль",
-        "password.url": "URL",
-        "password.notes": "Заметки",
-        "password.actions": "Действия",
-        "password.new": "Новая",
-        "password.generate": "Сгенерировать пароль",
-        "password.save": "Сохранить запись",
-        "password.delete": "Удалить запись",
-        "password.copy_user": "Коп. логин",
-        "password.copy_pass": "Коп. пароль",
-        "password.lowercase": "Строчные",
-        "password.uppercase": "Заглавные",
-        "password.digits": "Цифры",
-        "password.symbols": "Символы",
-        "password.exclude_ambiguous": "Исключить неоднозначные",
-        "password.generate_now": "Сгенерировать",
-        "password.apply": "Применить",
-        "password.copy": "Копировать",
-        "password.length": "Длина",
-        "password.generated": "Готовый",
-        "password.saved_notice": "Запись пароля сохранена.",
-        "password.deleted_notice": "Запись пароля удалена.",
-        "password.copied_notice": "Скопировано в буфер.",
-        "password.error_title": "Ошибка менеджера паролей",
-        "password.edit": "Изменить",
+        "preset": "РџСЂРµСЃРµС‚",
+        "title": "РќР°Р·РІР°РЅРёРµ",
+        "author": "РђРІС‚РѕСЂ",
+        "tags": "РўРµРіРё",
+        "cover": "РћР±Р»РѕР¶РєР°",
+        "export_tagged": "Р­РєСЃРїРѕСЂС‚ РєРѕРїРёР№",
+        "sound": "Р—РІСѓРє",
+        "notifications": "РЈРІРµРґРѕРјР»РµРЅРёСЏ",
+        "toast_corner": "РЈРіРѕР» СѓРІРµРґРѕРјР»РµРЅРёР№",
+        "export_folder": "РџР°РїРєР° СЌРєСЃРїРѕСЂС‚Р°",
+        "choose_export_folder": "Р’С‹Р±СЂР°С‚СЊ РїР°РїРєСѓ СЌРєСЃРїРѕСЂС‚Р°",
+        "save_settings": "РЎРѕС…СЂР°РЅРёС‚СЊ РЅР°СЃС‚СЂРѕР№РєРё",
+        "language": "РЇР·С‹Рє",
+        "coder": "РєРѕРґРµСЂ",
+        "image_splitter": "Р Р°Р·РґРµР»РёС‚РµР»СЊ РёР·РѕР±СЂР°Р¶РµРЅРёР№",
+        "watermark": "Р’РѕРґСЏРЅРѕР№ Р·РЅР°Рє",
+        "mp3_metadata": "MP3 РјРµС‚Р°РґР°РЅРЅС‹Рµ",
     },
 }
 
@@ -228,9 +164,6 @@ class MainWindow(QMainWindow):
         self.watermark_service = WatermarkService()
         self.metadata_service = MetadataService()
         self.coder_service = CoderService()
-        self.password_storage_service = PasswordStorageService()
-        self.password_generator_service = PasswordGeneratorService()
-        self.clipboard_service = ClipboardService()
         self.preset_service = PresetService()
         self.settings_service = SettingsService()
         self.settings = self.settings_service.load()
@@ -239,7 +172,7 @@ class MainWindow(QMainWindow):
         self._last_trigger_widget: QWidget | None = None
 
         self._build_ui()
-        self._apply_theme()
+        self._apply_stylesheet()
         self._refresh_presets()
         self._sync_settings()
         self._update_coder_method()
@@ -273,8 +206,6 @@ class MainWindow(QMainWindow):
         panel_layout.setSpacing(16)
         logo = LogoLabel(360, 32)
         logo.setMinimumHeight(340)
-        button = RetroButton("Приступить", accent=True)
-        button = RetroButton("\u041f\u0440\u0438\u0441\u0442\u0443\u043f\u0438\u0442\u044c", accent=True)
         button = RetroButton(self._tr("start"), accent=True)
         button.setMinimumSize(220, 42)
         button.clicked.connect(lambda: self.root_stack.setCurrentIndex(1))
@@ -318,10 +249,9 @@ class MainWindow(QMainWindow):
         logo.setFixedSize(34, 28)
         file_button = RetroButton(self._tr("file"), flat_menu=True)
         view_button = RetroButton(self._tr("view"), flat_menu=True)
-        special_button = RetroButton(self._tr("special"), flat_menu=True)
         telegram = RetroButton(self._tr("telegram"), flat_menu=True)
         telegram.clicked.connect(lambda: QDesktopServices.openUrl(QUrl("https://t.me/adv3rta")))
-        for button in (file_button, view_button, special_button, telegram):
+        for button in (file_button, view_button, telegram):
             button.setFixedSize(112, 30)
         self.settings_button = RetroButton("", flat_menu=True, icon_name="settings")
         self.settings_button.setFixedSize(42, 34)
@@ -338,16 +268,9 @@ class MainWindow(QMainWindow):
         view_action.triggered.connect(self._open_assets_folder)
         self.view_menu.addAction(view_action)
         view_button.clicked.connect(lambda: self.view_menu.popup(view_button.mapToGlobal(view_button.rect().bottomLeft())))
-        self.special_menu = QMenu(self)
-        self.special_menu.setStyleSheet("QMenu { background: #ffffff; color: #000000; border: 1px solid #000000; } QMenu::item:selected { background: #d9d9d9; color: #000000; }")
-        password_action = QAction(self._tr("password_manager"), self)
-        password_action.triggered.connect(lambda: self._open_module(self._tr("password_manager")))
-        self.special_menu.addAction(password_action)
-        special_button.clicked.connect(lambda: self.special_menu.popup(special_button.mapToGlobal(special_button.rect().bottomLeft())))
         layout.addWidget(logo)
         layout.addWidget(file_button)
         layout.addWidget(view_button)
-        layout.addWidget(special_button)
         layout.addWidget(telegram)
         layout.addStretch()
         layout.addWidget(self.settings_button)
@@ -384,7 +307,6 @@ class MainWindow(QMainWindow):
             (self._tr("image_splitter"), self._build_slicer()),
             (self._tr("watermark"), self._build_watermark()),
             (self._tr("mp3_metadata"), self._build_metadata()),
-            (self._tr("password_manager"), self._build_password_manager()),
             (self._tr("settings"), self._build_settings()),
         ]
         for title, widget in pages:
@@ -632,16 +554,6 @@ class MainWindow(QMainWindow):
         layout.addStretch()
         return page
 
-    def _build_password_manager(self) -> QWidget:
-        self.password_manager = PasswordManagerWidget(
-            self.password_storage_service,
-            self.password_generator_service,
-            self.clipboard_service,
-            self._tr,
-            show_notification,
-        )
-        return self.password_manager
-
     def _show_settings_menu(self) -> None:
         self.settings_menu.popup(self.settings_button.mapToGlobal(self.settings_button.rect().bottomLeft()))
 
@@ -696,9 +608,9 @@ class MainWindow(QMainWindow):
         height = min(720, area.height())
         return QRect(area.center().x() - width // 2, area.center().y() - height // 2, width, height)
 
-    def _apply_theme(self) -> None:
+    def _apply_stylesheet(self) -> None:
         QApplication.instance().setStyle("Fusion")
-        self.setStyleSheet(build_stylesheet(self.settings.theme))
+        self.setStyleSheet(build_stylesheet())
 
     def resizeEvent(self, event) -> None:  # noqa: N802
         if hasattr(self, "toast_manager"):
@@ -719,7 +631,6 @@ class MainWindow(QMainWindow):
     def _save_settings(self) -> None:
         previous_language = self.settings.language
         self.settings = AppSettings(
-            theme=self.settings.theme,
             sound_enabled=self.sound.toggle.isChecked(),
             notifications_enabled=self.notifications.toggle.isChecked(),
             export_directory=Path(self.export_dir.text().strip() or self.settings.export_directory),
@@ -728,7 +639,7 @@ class MainWindow(QMainWindow):
         )
         self.settings_service.save(self.settings)
         self.toast_manager.set_corner(self.settings.notification_corner)
-        self._apply_theme()
+        self._apply_stylesheet()
         if previous_language != self.settings.language:
             self._rebuild_ui()
         show_notification("success", "Settings saved.")
@@ -740,7 +651,7 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
         self._build_ui()
-        self._apply_theme()
+        self._apply_stylesheet()
         self._refresh_presets()
         self._sync_settings()
         self._update_coder_method()
@@ -753,7 +664,7 @@ class MainWindow(QMainWindow):
             self.export_dir.setText(folder)
 
     def _open_assets_folder(self) -> None:
-        assets_dir = Path("assetsadv3rta")
+        assets_dir = Path("assets")
         assets_dir.mkdir(parents=True, exist_ok=True)
         QDesktopServices.openUrl(QUrl.fromLocalFile(str(assets_dir.resolve())))
 
@@ -762,11 +673,11 @@ class MainWindow(QMainWindow):
         self.wm_preset.addItems(sorted(self.presets.keys()))
 
     def _pick_slicer_files(self) -> None:
-        files, _ = QFileDialog.getOpenFileNames(self, "Choose images", filter="Images (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff)")
+        files, _ = QFileDialog.getOpenFileNames(self, "Choose images", filter="Images (*.png *.jpg *.jpeg *.webp *.bmp *.tif *.tiff)")
         self.slicer_queue.add_paths([Path(value) for value in files])
 
     def _pick_watermark_files(self) -> None:
-        files, _ = QFileDialog.getOpenFileNames(self, "Choose images", filter="Images (*.png *.jpg *.jpeg *.webp *.bmp *.gif *.tif *.tiff)")
+        files, _ = QFileDialog.getOpenFileNames(self, "Choose images", filter="Images (*.png *.jpg *.jpeg *.webp *.bmp *.tif *.tiff)")
         self.watermark_queue.add_paths([Path(value) for value in files])
 
     def _pick_mp3_files(self) -> None:

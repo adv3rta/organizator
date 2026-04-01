@@ -1,0 +1,10 @@
+{"timestamp": "2026-04-01T21:16:09.606039+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
+{"timestamp": "2026-04-01T21:20:03.599533+00:00", "level": "INFO", "logger": "app.services.settings_service", "message": "Settings saved", "module": "settings_service", "function": "save", "line": 43, "error_code": "CFG-002", "context": {"path": "settings.json"}}
+{"timestamp": "2026-04-01T21:20:32.363412+00:00", "level": "DEBUG", "logger": "PIL.PngImagePlugin", "message": "STREAM b'IHDR' 16 13", "module": "PngImagePlugin", "function": "call", "line": 204}
+{"timestamp": "2026-04-01T21:20:32.363518+00:00", "level": "DEBUG", "logger": "PIL.PngImagePlugin", "message": "STREAM b'pHYs' 41 9", "module": "PngImagePlugin", "function": "call", "line": 204}
+{"timestamp": "2026-04-01T21:20:32.363598+00:00", "level": "DEBUG", "logger": "PIL.PngImagePlugin", "message": "STREAM b'sRGB' 62 1", "module": "PngImagePlugin", "function": "call", "line": 204}
+{"timestamp": "2026-04-01T21:20:32.363668+00:00", "level": "DEBUG", "logger": "PIL.PngImagePlugin", "message": "STREAM b'gAMA' 75 4", "module": "PngImagePlugin", "function": "call", "line": 204}
+{"timestamp": "2026-04-01T21:20:32.363737+00:00", "level": "DEBUG", "logger": "PIL.PngImagePlugin", "message": "STREAM b'IDAT' 91 386085", "module": "PngImagePlugin", "function": "call", "line": 204}
+{"timestamp": "2026-04-01T21:20:32.444015+00:00", "level": "INFO", "logger": "app.services.image_service", "message": "Sliced image 'C:\\Users\\user\\Desktop\\ADVERTA\\9999.png' into 9 squares.", "module": "image_service", "function": "slice_to_squares", "line": 42}
+{"timestamp": "2026-04-01T21:21:46.327708+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
+{"timestamp": "2026-04-01T21:21:54.487757+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}

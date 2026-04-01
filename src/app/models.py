@@ -6,7 +6,6 @@ from pathlib import Path
 
 @dataclass(slots=True)
 class AppSettings:
-    theme: str = "dark"
     sound_enabled: bool = False
     notifications_enabled: bool = True
     export_directory: Path = field(default_factory=lambda: Path("exports"))
@@ -21,9 +20,7 @@ class AppSettings:
     @classmethod
     def from_dict(cls, payload: dict[str, object]) -> "AppSettings":
         export_directory = payload.get("export_directory")
-        theme = str(payload.get("theme", "dark"))
         return cls(
-            theme=theme if theme in {"dark", "light"} else "dark",
             sound_enabled=bool(payload.get("sound_enabled", False)),
             notifications_enabled=bool(payload.get("notifications_enabled", True)),
             export_directory=Path(str(export_directory)) if export_directory else Path("exports"),

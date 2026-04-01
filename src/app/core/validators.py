@@ -4,7 +4,7 @@ from pathlib import Path
 
 from app.core.exceptions import ValidationError
 
-IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
 MP3_EXTENSIONS = {".mp3"}
 WATERMARK_IMAGE_EXTENSIONS = {".png"}
 

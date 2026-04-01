@@ -447,7 +447,7 @@ class FileQueueWidget(QListWidget):
     def _extract_paths(self, mime_data: QMimeData) -> list[Path]:
         if not mime_data.hasUrls():
             return []
-        suffixes = {".mp3"} if self._file_mode == "mp3" else {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff"}
+        suffixes = {".mp3"} if self._file_mode == "mp3" else {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
         files: list[Path] = []
         for url in mime_data.urls():
             path = Path(url.toLocalFile())
@@ -460,7 +460,7 @@ class FileQueueWidget(QListWidget):
         return files
 
     def _thumbnail(self, path: Path) -> QPixmap:
-        if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif", ".tif", ".tiff"}:
+        if path.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}:
             pixmap = QPixmap(str(path))
             if not pixmap.isNull():
                 return pixmap
