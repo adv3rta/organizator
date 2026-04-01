@@ -83,34 +83,3 @@ class WatermarkRequest:
     rotation: float
     watermark_image: Path | None = None
     watermark_text: str | None = None
-
-
-@dataclass(slots=True)
-class PasswordEntry:
-    entry_id: str
-    service_name: str
-    username: str
-    password: str
-    url: str = ""
-    notes: str = ""
-
-    def to_dict(self) -> dict[str, str]:
-        return {
-            "id": self.entry_id,
-            "service_name": self.service_name,
-            "username": self.username,
-            "password": self.password,
-            "url": self.url,
-            "notes": self.notes,
-        }
-
-    @classmethod
-    def from_dict(cls, payload: dict[str, object]) -> "PasswordEntry":
-        return cls(
-            entry_id=str(payload.get("id", "")),
-            service_name=str(payload.get("service_name", "")).strip(),
-            username=str(payload.get("username", "")).strip(),
-            password=str(payload.get("password", "")),
-            url=str(payload.get("url", "")).strip(),
-            notes=str(payload.get("notes", "")),
-        )
