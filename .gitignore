@@ -1,2 +1,10 @@
 *.log
 export/
+node_modules/
+.npm-cache/
+out/
+dist/
+shared/dist/
+server/dist/
+server/data/
+.env

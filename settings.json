@@ -1,7 +1,0 @@
-{
-  "sound_enabled": true,
-  "notifications_enabled": true,
-  "export_directory": "exports",
-  "notification_corner": "bottom-right",
-  "language": "en"
-}

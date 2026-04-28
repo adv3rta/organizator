@@ -1,0 +1,22 @@
+{
+  "name": "adverta-tools",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "app",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm:dev -w server\" \"npm:dev -w app\"",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w app",
+    "start": "concurrently \"npm:start -w server\" \"npm:start -w app\"",
+    "test": "npm run test -w shared && npm run test -w server && npm run test -w app"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}

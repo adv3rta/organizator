@@ -1,44 +1,80 @@
-# organizator
+# Adverta Tools
 
-Offline Windows desktop app for image splitting, watermarking, MP3 metadata editing, and encoding/decoding text tools.
+Desktop application for local image utilities and metadata editing, built with `Electron + React + TypeScript`, plus a separate `Express + SQLite` backend.
+
+## Structure
+
+- `app` — Electron shell, preload bridge, renderer UI, local tool processing
+- `server` — Express backend, auth, subscriptions, payment abstraction, SQLite persistence
+- `shared` — shared TypeScript contracts and helpers
 
 ## Features
 
-- Slice images into even square PNG tiles with transparent padding.
-- Apply text or PNG watermarks with position, opacity, scale, and rotation controls.
-- Use 4 built-in watermark presets and save, update, or delete custom presets.
-- Edit MP3 metadata in batch: title, author, tags, and cover image.
-- Encode and decode Morse, Binary, Base64, and Caesar cipher text.
-- Show in-app toast notifications instead of blocking Windows message boxes.
-- Drag and drop files or folders with visual feedback.
-- Configure export folder, sounds, notifications, and language.
-- Structured logging, error handling, and unit tests for core processing services.
+- `Image Slicer` — splits an image into equal square tiles and exports a JSON manifest
+- `Metadata Editor` — batch edits file names, timestamps, MP3 ID3 tags, PDF metadata, and image EXIF where supported
+- `Batch Watermarking` — applies text or PNG watermarks to multiple local images
+- `Palette Grabber` — extracts dominant colors locally, copies HEX values, exports `.ase`, `.txt`, and `.csv`
+- `Auth + Subscription Modes`
+  - `AUTH_MODE=mock|production`
+  - `SUBSCRIPTION_MODE=mock|production`
+  - mock mode supports local login, local subscription state, debug state switching, and simulated payment
+  - production mode uses backend `/register`, `/login`, `/logout`, `/status`, and `/create-payment`
 
-## Tech stack
+## Setup
 
-- Python 3.11+
-- PySide6 (desktop UI)
-- Pillow (image processing)
-- mutagen (MP3 tags)
-- pytest (tests)
+1. Copy `.env.example` to `.env`
+2. Install dependencies:
+   - `npm install`
+3. Adjust mode and backend/payment values in `.env`
 
 ## Run
 
-```bash
-pip install -r requirements.txt
-python run_app.py
-```
+- Development:
+  - `npm run dev`
+- Production-style local start after build:
+  - `npm run build`
+  - `npm run start`
 
-## Test
+## Build
 
-```bash
-pytest -q
-```
+- Workspace build:
+  - `npm run build`
+- Outputs:
+  - `shared/dist`
+  - `server/dist`
+  - `app/out`
 
-## Notes
+## Tests
 
-- Output images are saved as PNG with transparency support.
-- Splitter exports tiles into a folder named after the source file.
-- Watermark and metadata exports also create per-file output folders under the shared export root.
-- Presets are stored in `presets.json`, settings in `settings.json`.
-- Logs are stored in `logs/app.log`.
+- Run all tests:
+  - `npm run test`
+
+## Environment
+
+Required core values:
+
+- `AUTH_MODE=mock|production`
+- `SUBSCRIPTION_MODE=mock|production`
+- `APP_API_BASE_URL=http://127.0.0.1:3010`
+- `APP_CACHE_TTL_HOURS=24`
+- `SERVER_PORT=3010`
+- `SERVER_HOST=127.0.0.1`
+- `SERVER_DB_PATH=./server/data/adverta-tools.db`
+
+YooKassa production placeholders:
+
+- `YOOKASSA_SHOP_ID`
+- `YOOKASSA_SECRET_KEY`
+- `YOOKASSA_RETURN_URL`
+- `YOOKASSA_WEBHOOK_SECRET`
+- `YOOKASSA_PAYMENT_PAGE_URL`
+
+If `SUBSCRIPTION_MODE=production` is selected without valid YooKassa values, the backend returns a clear payment setup error instead of silently failing.
+
+## Changelog
+
+- Replaced the Python desktop app with a strict `app / server / shared` workspace
+- Added Electron IPC bridge and React desktop UI with dark glass styling
+- Implemented local image slicing, watermarking, metadata editing, and palette exporting
+- Added mock and production auth/subscription provider layers
+- Added Express backend with SQLite persistence and YooKassa payment abstraction

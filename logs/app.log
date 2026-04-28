@@ -1,5 +1,0 @@
-{"timestamp": "2026-04-01T21:16:09.605863+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
-{"timestamp": "2026-04-01T21:20:03.599475+00:00", "level": "INFO", "logger": "app.services.settings_service", "message": "Settings saved", "module": "settings_service", "function": "save", "line": 43, "error_code": "CFG-002", "context": {"path": "settings.json"}}
-{"timestamp": "2026-04-01T21:20:32.443954+00:00", "level": "INFO", "logger": "app.services.image_service", "message": "Sliced image 'C:\\Users\\user\\Desktop\\ADVERTA\\9999.png' into 9 squares.", "module": "image_service", "function": "slice_to_squares", "line": 42}
-{"timestamp": "2026-04-01T21:21:46.327535+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
-{"timestamp": "2026-04-01T21:21:54.487622+00:00", "level": "INFO", "logger": "app.main", "message": "Application started", "module": "main", "function": "main", "line": 18}
