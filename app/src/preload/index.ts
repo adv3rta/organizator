@@ -29,8 +29,11 @@ const api = {
   openExternal: (url: string): Promise<void> => invoke("shell:open-external", url),
   copyToClipboard: (value: string): Promise<void> => invoke("clipboard:write-text", value),
   cacheGet: <T>(key: string): Promise<CacheEnvelope<T> | null> => invoke("cache:get", key),
+  cacheGetAll: (): Promise<Record<string, unknown>> => invoke("cache:get-all"),
   cacheSet: <T>(key: string, value: CacheEnvelope<T>): Promise<void> => invoke("cache:set", { key, value }),
   cacheDelete: (key: string): Promise<void> => invoke("cache:delete", key),
+  cacheClear: (): Promise<void> => invoke("cache:clear"),
+  writeTextFile: (payload: { filePath: string; content: string }): Promise<void> => invoke("fs:write-text-file", payload),
   inspectMetadata: (paths: string[]): Promise<IpcResult<MetadataInspection[]>> => invoke("tool:metadata-inspect", paths),
   updateMetadata: (entries: MetadataUpdateEntry[]): Promise<IpcResult<MetadataUpdateResult>> =>
     invoke("tool:metadata-update", entries),

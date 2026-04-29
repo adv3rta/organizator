@@ -25,6 +25,9 @@ export const cacheStore = {
     const store = readStore();
     return (store[key] as T | undefined) ?? null;
   },
+  getAll(): Record<string, unknown> {
+    return readStore();
+  },
   set<T>(key: string, value: T): void {
     const store = readStore();
     store[key] = value;
@@ -34,5 +37,8 @@ export const cacheStore = {
     const store = readStore();
     delete store[key];
     writeStore(store);
+  },
+  clear(): void {
+    writeStore({});
   }
 };

@@ -28,7 +28,8 @@ export type WatermarkPosition =
   | "center-right"
   | "bottom-left"
   | "bottom-center"
-  | "bottom-right";
+  | "bottom-right"
+  | "custom";
 
 export interface WatermarkJobInput {
   sourcePaths: string[];
@@ -40,6 +41,8 @@ export interface WatermarkJobInput {
   scale: number;
   position: WatermarkPosition;
   margin: number;
+  customX?: number;
+  customY?: number;
 }
 
 export interface WatermarkJobResult {

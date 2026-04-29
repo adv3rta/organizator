@@ -25,6 +25,16 @@ const sharp = require("sharp") as any;
 
 const padTileSize = (dimension: number, tileSize: number): number => Math.ceil(dimension / tileSize) * tileSize;
 
+const validatePositiveInteger = (value: number | undefined, field: string): number | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (!Number.isFinite(value) || value <= 0 || !Number.isInteger(value)) {
+    throw new ToolError(`${field} must be a positive whole number.`, "INVALID_INPUT");
+  }
+  return value;
+};
+
 export const sliceImage = async (input: ImageSlicerInput): Promise<ImageSlicerResult> => {
   ensureExists(input.sourcePath);
   ensureDirectory(input.outputDirectory);
@@ -32,34 +42,58 @@ export const sliceImage = async (input: ImageSlicerInput): Promise<ImageSlicerRe
   if (!metadata.width || !metadata.height) {
     throw new ToolError("Unable to read image dimensions.", "INVALID_IMAGE");
   }
+
+  const requestedTileSize = validatePositiveInteger(input.tileSize, "Tile size");
+  const requestedColumns = validatePositiveInteger(input.gridColumns, "Columns");
+  const requestedRows = validatePositiveInteger(input.gridRows, "Rows");
+
+  if (!requestedTileSize && !requestedColumns && !requestedRows) {
+    throw new ToolError("Select a tile size or set rows and columns before exporting.", "INVALID_INPUT");
+  }
+
+  const columns = requestedColumns ?? Math.ceil(metadata.width / (requestedTileSize ?? metadata.width));
+  const rows = requestedRows ?? Math.ceil(metadata.height / (requestedTileSize ?? metadata.height));
+
+  if (!columns || !rows) {
+    throw new ToolError("Rows and columns must both be greater than zero.", "INVALID_INPUT");
+  }
+
   const tileSize =
-    input.tileSize ??
-    Math.ceil(
-      Math.max(metadata.width / (input.gridColumns ?? 1), metadata.height / (input.gridRows ?? input.gridColumns ?? 1))
-    );
-  const paddedWidth = padTileSize(metadata.width, tileSize);
-  const paddedHeight = padTileSize(metadata.height, tileSize);
-  const columns = paddedWidth / tileSize;
-  const rows = paddedHeight / tileSize;
+    requestedTileSize ?? Math.ceil(Math.max(metadata.width / columns, metadata.height / rows));
+
+  if (!tileSize || tileSize <= 0) {
+    throw new ToolError("Tile size must be greater than zero.", "INVALID_INPUT");
+  }
+
+  const paddedWidth = Math.max(tileSize * columns, padTileSize(metadata.width, tileSize));
+  const paddedHeight = Math.max(tileSize * rows, padTileSize(metadata.height, tileSize));
   const baseName = path.parse(input.sourcePath).name;
 
-  const canvas = sharp(input.sourcePath)
+  const paddedBuffer = await sharp(input.sourcePath)
     .ensureAlpha()
     .extend({
       right: paddedWidth - metadata.width,
       bottom: paddedHeight - metadata.height,
       background: { r: 0, g: 0, b: 0, alpha: 0 }
-    });
+    })
+    .png()
+    .toBuffer();
 
   const tiles = [];
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
+      const left = column * tileSize;
+      const top = row * tileSize;
+
+      if (left < 0 || top < 0 || left + tileSize > paddedWidth || top + tileSize > paddedHeight) {
+        throw new ToolError("Computed tile bounds are invalid. Adjust the grid and try again.", "INVALID_EXTRACT_AREA");
+      }
+
       const outputPath = path.join(input.outputDirectory, `${baseName}_r${row + 1}_c${column + 1}.png`);
-      await canvas
-        .clone()
+      await sharp(paddedBuffer)
         .extract({
-          left: column * tileSize,
-          top: row * tileSize,
+          left,
+          top,
           width: tileSize,
           height: tileSize
         })
@@ -284,17 +318,32 @@ export const applyWatermark = async (input: WatermarkJobInput): Promise<Watermar
       overlay = await buildTextWatermark(input.text ?? "", Math.max(240, Math.round(width * input.scale)), input.opacity);
     }
     const outputPath = path.join(input.outputDirectory, `${path.parse(sourcePath).name}_watermarked.png`);
+    const overlayMetadata = await sharp(overlay).metadata();
+    const overlayWidth = overlayMetadata.width ?? Math.max(60, Math.round(width * input.scale));
+    const overlayHeight = overlayMetadata.height ?? Math.max(40, Math.round(width * input.scale * 0.3));
+    const imageHeight = metadata.height ?? width;
+
+    const composite =
+      input.position === "custom"
+        ? {
+            input: overlay,
+            blend: "over" as const,
+            left: Math.max(0, Math.round((input.customX ?? 0.5) * width - overlayWidth / 2)),
+            top: Math.max(0, Math.round((input.customY ?? 0.5) * imageHeight - overlayHeight / 2))
+          }
+        : {
+            input: overlay,
+            gravity: positionToGravity(input.position),
+            blend: "over" as const,
+            top:
+              input.position.startsWith("top") ? input.margin : input.position.startsWith("bottom") ? -input.margin : 0,
+            left:
+              input.position.endsWith("left") ? input.margin : input.position.endsWith("right") ? -input.margin : 0
+          };
+
     await base
       .composite([
-        {
-          input: overlay,
-          gravity: positionToGravity(input.position),
-          blend: "over",
-          top:
-            input.position.startsWith("top") ? input.margin : input.position.startsWith("bottom") ? -input.margin : 0,
-          left:
-            input.position.endsWith("left") ? input.margin : input.position.endsWith("right") ? -input.margin : 0
-        }
+        composite
       ])
       .png()
       .toFile(outputPath);

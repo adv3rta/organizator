@@ -1,5 +1,6 @@
 import { app, BrowserWindow, clipboard, dialog, ipcMain, shell } from "electron";
 import path from "node:path";
+import fs from "node:fs";
 import { cacheStore } from "./cache-store.js";
 import { applyWatermark, grabPalette, inspectMetadata, sliceImage, updateMetadata } from "./tools.js";
 
@@ -57,11 +58,19 @@ app.whenReady().then(async () => {
     clipboard.writeText(value);
   });
   ipcMain.handle("cache:get", async (_event, key: string) => cacheStore.get(key));
+  ipcMain.handle("cache:get-all", async () => cacheStore.getAll());
   ipcMain.handle("cache:set", async (_event, payload: { key: string; value: unknown }) => {
     cacheStore.set(payload.key, payload.value);
   });
   ipcMain.handle("cache:delete", async (_event, key: string) => {
     cacheStore.delete(key);
+  });
+  ipcMain.handle("cache:clear", async () => {
+    cacheStore.clear();
+  });
+  ipcMain.handle("fs:write-text-file", async (_event, payload: { filePath: string; content: string }) => {
+    fs.mkdirSync(path.dirname(payload.filePath), { recursive: true });
+    fs.writeFileSync(payload.filePath, payload.content, "utf8");
   });
   ipcMain.handle("tool:metadata-inspect", async (_event, payload: string[]) => {
     try {

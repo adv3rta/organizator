@@ -1,13 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import type { AuthSession, StatusResponse, SubscriptionPlan } from "@adverta/shared";
 import { AppContext, type ScreenState } from "./contexts/AppContext";
+import { BackArrow } from "./components/BackArrow";
 import { Button } from "./components/Button";
 import { Card } from "./components/Card";
 import { DebugPanel } from "./components/DebugPanel";
 import { Input } from "./components/Input";
-import { StatusPill } from "./components/StatusPill";
+import { Toggle } from "./components/Toggle";
 import { createProvidersFromEnv } from "./services/provider-factory";
 import { getEnv, loadEnv, type RuntimeEnv } from "./services/env";
+import { defaultAppSettings, loadAppSettings, saveAppSettings, type AppSettings } from "./services/app-settings";
 import { ImageSlicerTool } from "./tools/ImageSlicerTool";
 import { MetadataEditorTool } from "./tools/MetadataEditorTool";
 import { PaletteGrabberTool } from "./tools/PaletteGrabberTool";
@@ -21,19 +23,22 @@ const tools = [
 ] as const;
 
 type ToolId = (typeof tools)[number]["id"];
-type WorkspaceView = "menu" | ToolId;
+type WorkspaceView = "menu" | "settings" | ToolId;
 
-const renderTool = (id: ToolId) => {
-  switch (id) {
-    case "slicer":
-      return <ImageSlicerTool />;
-    case "metadata":
-      return <MetadataEditorTool />;
-    case "watermark":
-      return <WatermarkTool />;
-    case "palette":
-      return <PaletteGrabberTool />;
+const imageExtensions = new Set(["png", "jpg", "jpeg", "webp", "bmp", "gif", "tif", "tiff"]);
+const metadataExtensions = new Set(["mp3", "pdf", "png", "jpg", "jpeg", "webp", "tif", "tiff"]);
+
+const fileExt = (filePath: string): string => filePath.split(".").pop()?.toLowerCase() ?? "";
+
+const pickToolFromDrop = (paths: string[]): ToolId => {
+  if (paths.length > 1) {
+    return paths.every((item) => imageExtensions.has(fileExt(item))) ? "watermark" : "metadata";
   }
+  const extension = fileExt(paths[0] ?? "");
+  if (extension && metadataExtensions.has(extension) && !imageExtensions.has(extension)) {
+    return "metadata";
+  }
+  return "slicer";
 };
 
 const TileIcon = ({ icon }: { icon: (typeof tools)[number]["icon"] }) => {
@@ -71,6 +76,103 @@ const TileIcon = ({ icon }: { icon: (typeof tools)[number]["icon"] }) => {
   );
 };
 
+interface SettingsScreenProps {
+  settings: AppSettings;
+  onChange: (patch: Partial<AppSettings>) => void;
+  onChooseFolder: () => void;
+  onClearCache: () => void;
+  onExportLogs: () => void;
+  onBack: () => void;
+  onLogout: () => void;
+  status: StatusResponse | null;
+}
+
+const SettingsScreen = ({
+  settings,
+  onChange,
+  onChooseFolder,
+  onClearCache,
+  onExportLogs,
+  onBack,
+  onLogout,
+  status
+}: SettingsScreenProps) => (
+  <section className="workspace-detail">
+    <header className="tool-topbar">
+      <BackArrow onClick={onBack} />
+      <div className="tool-topbar-copy">
+        <h1 className="tool-topbar-title">Settings</h1>
+        <p className="tool-topbar-subtitle">Configure Adverta Tools without leaving the workspace.</p>
+      </div>
+    </header>
+
+    <div className="settings-layout">
+      <Card className="tool-panel" title="Preferences" subtitle="Compact controls with saved local state.">
+        <div className="settings-grid">
+          <div className="settings-row">
+            <div className="settings-copy">
+              <span className="settings-label">Language</span>
+              <span className="settings-hint">Choose interface language.</span>
+            </div>
+            <div className="segmented-control">
+              <Button className={settings.language === "ru" ? "is-active" : ""} onClick={() => onChange({ language: "ru" })}>
+                RU
+              </Button>
+              <Button className={settings.language === "eng" ? "is-active" : ""} onClick={() => onChange({ language: "eng" })}>
+                ENG
+              </Button>
+            </div>
+          </div>
+
+          <div className="settings-row">
+            <div className="settings-copy">
+              <span className="settings-label">Default export folder</span>
+              <span className="settings-hint selected-file">{settings.defaultExportFolder ?? "Not selected"}</span>
+            </div>
+            <Button onClick={onChooseFolder}>Choose folder</Button>
+          </div>
+
+          <div className="settings-row">
+            <div className="settings-copy">
+              <span className="settings-label">Theme mode</span>
+              <span className="settings-hint">Switch between dark and pure black surfaces.</span>
+            </div>
+            <div className="segmented-control">
+              <Button className={settings.themeMode === "dark" ? "is-active" : ""} onClick={() => onChange({ themeMode: "dark" })}>
+                Dark
+              </Button>
+              <Button className={settings.themeMode === "black" ? "is-active" : ""} onClick={() => onChange({ themeMode: "black" })}>
+                Pure black
+              </Button>
+            </div>
+          </div>
+
+          <Toggle checked={settings.notifications} onChange={(value) => onChange({ notifications: value })} label="Notifications" hint="Show completion notifications inside the app." />
+          <Toggle checked={settings.autoOpenExportFolder} onChange={(value) => onChange({ autoOpenExportFolder: value })} label="Auto-open export folder" hint="Open the selected destination after export finishes." />
+          <Toggle checked={settings.confirmOverwrite} onChange={(value) => onChange({ confirmOverwrite: value })} label="Confirm overwrite" hint="Ask before replacing existing files." />
+          <Toggle checked={settings.saveLastToolSettings} onChange={(value) => onChange({ saveLastToolSettings: value })} label="Save last tool settings" hint="Restore the last values when you reopen a tool." />
+        </div>
+      </Card>
+
+      <Card className="tool-panel tool-panel-secondary" title="Maintenance" subtitle="Local cleanup and export actions.">
+        <div className="settings-grid">
+          <div className="settings-row">
+            <div className="settings-copy">
+              <span className="settings-label">Subscription state</span>
+              <span className="settings-hint">{status?.subscription?.status ?? "unknown"}</span>
+            </div>
+          </div>
+          <div className="tool-panel-actions">
+            <Button onClick={onClearCache}>Clear cache</Button>
+            <Button onClick={onExportLogs}>Export logs</Button>
+            <Button onClick={onLogout}>Log out</Button>
+          </div>
+        </div>
+      </Card>
+    </div>
+  </section>
+);
+
 export default function App() {
   const [runtimeEnv, setRuntimeEnv] = useState<RuntimeEnv>(getEnv());
   const providers = useMemo(() => createProvidersFromEnv(runtimeEnv), [runtimeEnv]);
@@ -82,7 +184,9 @@ export default function App() {
   const [workspaceView, setWorkspaceView] = useState<WorkspaceView>("menu");
   const [authModeView, setAuthModeView] = useState<"login" | "register">("login");
   const [debugVisible, setDebugVisible] = useState(false);
-  const [accountVisible, setAccountVisible] = useState(false);
+  const [appSettings, setAppSettings] = useState<AppSettings>(defaultAppSettings);
+  const [pendingDrop, setPendingDrop] = useState<{ tool: ToolId; files: string[]; token: number } | null>(null);
+  const [dropActive, setDropActive] = useState(false);
 
   const refreshStatus = async (sessionOverride?: AuthSession | null): Promise<StatusResponse | null> => {
     const activeSession = sessionOverride ?? session;
@@ -108,8 +212,9 @@ export default function App() {
   useEffect(() => {
     void (async () => {
       try {
-        const nextEnv = await loadEnv();
+        const [nextEnv, nextSettings] = await Promise.all([loadEnv(), loadAppSettings()]);
         setRuntimeEnv(nextEnv);
+        setAppSettings(nextSettings);
         const bootstrapProviders = createProvidersFromEnv(nextEnv);
         const storedSession = await bootstrapProviders.authProvider.loadSession();
         setSession(storedSession);
@@ -144,6 +249,15 @@ export default function App() {
     return () => window.removeEventListener("keydown", handler);
   }, []);
 
+  const persistSettings = async (patch: Partial<AppSettings>): Promise<void> => {
+    const next = {
+      ...appSettings,
+      ...patch
+    };
+    setAppSettings(next);
+    await saveAppSettings(next);
+  };
+
   const runAuth = async (mode: "login" | "register", formData: FormData): Promise<void> => {
     setBusy(true);
     setError(null);
@@ -177,21 +291,17 @@ export default function App() {
   };
 
   const startPayment = async (plan: Exclude<SubscriptionPlan, "none">): Promise<void> => {
-    if (!session) {
-      return;
-    }
+    if (!session) return;
     setBusy(true);
     setError(null);
     try {
       const payment = await providers.paymentProvider.createPayment(session, plan);
       await window.adverta.openExternal(payment.checkoutUrl);
       if (runtimeEnv.subscriptionMode === "mock" && providers.paymentProvider.simulateSuccess) {
-        setError("Checkout opened in mock mode. Use Simulate successful payment to unlock immediately.");
+        setError("Checkout opened in mock mode. Use simulate successful payment to unlock immediately.");
       } else {
         setError("Checkout opened. Waiting for payment confirmation...");
-        window.setTimeout(() => {
-          void refreshStatus(session);
-        }, 4000);
+        window.setTimeout(() => void refreshStatus(session), 4000);
       }
     } catch (caughtError) {
       setError(caughtError instanceof Error ? caughtError.message : "Payment failed to start.");
@@ -215,7 +325,50 @@ export default function App() {
     setStatus(null);
     setScreen("login");
     setWorkspaceView("menu");
-    setAccountVisible(false);
+  };
+
+  const handleGlobalDrop = (files: string[]): void => {
+    if (!files.length || screen !== "workspace") return;
+    const targetTool = workspaceView === "menu" || workspaceView === "settings" ? pickToolFromDrop(files) : workspaceView;
+    setWorkspaceView(targetTool);
+    setPendingDrop({ tool: targetTool, files, token: Date.now() });
+  };
+
+  const chooseDefaultExportFolder = async (): Promise<void> => {
+    const response = await window.adverta.selectFolder({
+      title: "Choose default export folder",
+      properties: ["openDirectory"]
+    });
+    if (!response.canceled && response.filePaths[0]) {
+      await persistSettings({ defaultExportFolder: response.filePaths[0] });
+    }
+  };
+
+  const clearCache = async (): Promise<void> => {
+    await window.adverta.cacheClear();
+    await persistSettings(defaultAppSettings);
+    setError("Cache cleared.");
+  };
+
+  const exportLogs = async (): Promise<void> => {
+    const response = await window.adverta.selectFolder({
+      title: "Choose log export folder",
+      properties: ["openDirectory"]
+    });
+    if (response.canceled || !response.filePaths[0]) return;
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      env: runtimeEnv,
+      settings: appSettings,
+      status,
+      cache: await window.adverta.cacheGetAll()
+    };
+    const filePath = `${response.filePaths[0]}\\adverta-log-${Date.now()}.json`;
+    await window.adverta.writeTextFile({
+      filePath,
+      content: JSON.stringify(payload, null, 2)
+    });
+    setError(`Logs exported to ${filePath}`);
   };
 
   const renderLoginScreen = () => (
@@ -248,7 +401,7 @@ export default function App() {
             </div>
           </form>
           <div className="login-footer">
-            <span>{authModeView === "login" ? "Don’t have an account?" : "Already have an account?"}</span>
+            <span>{authModeView === "login" ? "Don't have an account?" : "Already have an account?"}</span>
             <button
               type="button"
               className="link-button"
@@ -268,32 +421,12 @@ export default function App() {
       <header className="menu-topbar">
         <div className="menu-title">Adv3rta tools</div>
         <div className="menu-topbar-actions">
-          <Button variant="contrast" className="account-pill" onClick={() => setAccountVisible((current) => !current)}>
-            Account
-          </Button>
-          <Button variant="contrast" className="settings-pill" onClick={() => setDebugVisible((current) => !current)}>
+          <Button variant="contrast" className="settings-pill" onClick={() => setWorkspaceView("settings")}>
             ⚙
           </Button>
         </div>
       </header>
-      {accountVisible ? (
-        <Card className="account-card" title={session?.user.displayName ?? session?.user.email ?? "Account"} subtitle={session?.user.email ?? ""}>
-          <div className="account-card-content">
-            <StatusPill
-              label={
-                status?.subscription?.accessGranted
-                  ? status.subscription.plan === "none"
-                    ? "Trial active"
-                    : `${status.subscription.plan} active`
-                  : "Access blocked"
-              }
-              tone={status?.subscription?.accessGranted ? "active" : "warning"}
-            />
-            <Button onClick={() => void refreshStatus()}>Refresh status</Button>
-            <Button onClick={logout}>Log out</Button>
-          </div>
-        </Card>
-      ) : null}
+      <div className="drop-hint">Drop one image to open slicer, multiple images for watermarking, or mixed files for metadata.</div>
       <div className="menu-grid">
         {tools.map((tool) => (
           <button key={tool.id} className="tool-tile" onClick={() => setWorkspaceView(tool.id)}>
@@ -307,35 +440,59 @@ export default function App() {
     </section>
   );
 
-  const renderWorkspaceDetail = () => {
-    const activeTool = tools.find((tool) => tool.id === workspaceView);
-    if (!activeTool || workspaceView === "menu") {
-      return null;
+  const renderToolView = (id: ToolId) => {
+    const incomingFiles = pendingDrop?.tool === id ? pendingDrop.files : undefined;
+    const clearIncoming = () => {
+      setPendingDrop((current) => (current?.tool === id ? null : current));
+    };
+
+    if (id === "slicer") {
+      return <ImageSlicerTool incomingFiles={incomingFiles} consumeIncomingFiles={clearIncoming} appSettings={appSettings} />;
     }
+
+    if (id === "metadata") {
+      return <MetadataEditorTool incomingFiles={incomingFiles} consumeIncomingFiles={clearIncoming} appSettings={appSettings} />;
+    }
+
+    if (id === "watermark") {
+      return <WatermarkTool incomingFiles={incomingFiles} consumeIncomingFiles={clearIncoming} appSettings={appSettings} />;
+    }
+
+    return <PaletteGrabberTool incomingFiles={incomingFiles} consumeIncomingFiles={clearIncoming} appSettings={appSettings} />;
+  };
+
+  const renderWorkspaceDetail = () => {
+    if (workspaceView === "settings") {
+      return (
+        <SettingsScreen
+          settings={appSettings}
+          onChange={(patch) => void persistSettings(patch)}
+          onChooseFolder={() => void chooseDefaultExportFolder()}
+          onClearCache={() => void clearCache()}
+          onExportLogs={() => void exportLogs()}
+          onBack={() => setWorkspaceView("menu")}
+          onLogout={() => void logout()}
+          status={status}
+        />
+      );
+    }
+
+    const activeTool = tools.find((tool) => tool.id === workspaceView);
+    if (!activeTool) return null;
 
     return (
       <section className="workspace-detail">
-        <header className="menu-topbar">
-          <div className="menu-title">Adv3rta tools</div>
-          <div className="menu-topbar-actions">
-            <Button onClick={() => setWorkspaceView("menu")}>Back</Button>
-            <Button variant="contrast" className="account-pill" onClick={() => setAccountVisible((current) => !current)}>
-              Account
-            </Button>
-            <Button variant="contrast" className="settings-pill" onClick={() => setDebugVisible((current) => !current)}>
-              ⚙
-            </Button>
+        <header className="tool-topbar">
+          <BackArrow onClick={() => setWorkspaceView("menu")} />
+          <div className="tool-topbar-copy">
+            <h1 className="tool-topbar-title">{activeTool.title}</h1>
+            <p className="tool-topbar-subtitle">Direct manipulation first, instant feedback always.</p>
           </div>
+          <Button variant="contrast" className="settings-pill" onClick={() => setWorkspaceView("settings")}>
+            ⚙
+          </Button>
         </header>
-        {accountVisible ? (
-          <Card className="account-card" title={activeTool.title} subtitle={runtimeEnv.authMode === "mock" ? "Mock mode" : "Production mode"}>
-            <div className="account-card-content">
-              <StatusPill label={status?.subscription?.isOfflineFallback ? "Offline cache" : "Online state"} tone={status?.subscription?.isOfflineFallback ? "warning" : "active"} />
-              <Button onClick={() => setWorkspaceView("menu")}>All tools</Button>
-            </div>
-          </Card>
-        ) : null}
-        {renderTool(workspaceView)}
+        {renderToolView(activeTool.id)}
       </section>
     );
   };
@@ -357,22 +514,44 @@ export default function App() {
         refreshStatus
       }}
     >
-      <main className="design-root">
+      <main
+        className={`design-root theme-${appSettings.themeMode}`}
+        onDragOver={(event) => {
+          event.preventDefault();
+          if (screen === "workspace") setDropActive(true);
+        }}
+        onDragLeave={(event) => {
+          if (event.currentTarget === event.target) {
+            setDropActive(false);
+          }
+        }}
+        onDrop={(event) => {
+          event.preventDefault();
+          setDropActive(false);
+          const files = [...event.dataTransfer.files].map((file) => file.path).filter(Boolean);
+          handleGlobalDrop(files);
+        }}
+      >
+        {dropActive ? <div className="drop-overlay">Drop files to continue</div> : null}
         <DebugPanel visible={debugVisible} />
-        {screen === "loading" ? <div className="screen-frame centered-frame"><Card className="loading-card" title="Starting" subtitle="Checking session and subscription state." /></div> : null}
+        {screen === "loading" ? (
+          <div className="screen-frame centered-frame">
+            <Card className="loading-card" title="Starting" subtitle="Checking session and subscription state." />
+          </div>
+        ) : null}
         {screen === "login" ? <div className="screen-frame">{renderLoginScreen()}</div> : null}
         {screen === "paywall" ? (
           <div className="screen-frame centered-frame">
             <Card className="paywall-card" title="Unlock Adverta Tools" subtitle="Your access is currently inactive.">
               <div className="paywall-actions">
-                <Button variant="glass" onClick={() => startPayment("monthly")} fullWidth disabled={busy}>
+                <Button variant="glass" onClick={() => void startPayment("monthly")} fullWidth disabled={busy}>
                   Monthly - $4.99
                 </Button>
-                <Button variant="glass" onClick={() => startPayment("annual")} fullWidth disabled={busy}>
+                <Button variant="glass" onClick={() => void startPayment("annual")} fullWidth disabled={busy}>
                   Annual - $49.99
                 </Button>
                 {runtimeEnv.subscriptionMode === "mock" ? (
-                  <Button variant="contrast" onClick={() => simulatePayment("monthly")} fullWidth>
+                  <Button variant="contrast" onClick={() => void simulatePayment("monthly")} fullWidth>
                     Simulate successful payment
                   </Button>
                 ) : null}
